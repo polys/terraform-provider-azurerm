@@ -210,6 +210,7 @@ func SiteConfigSchemaWindows() *pluginsdk.Schema {
 				"remote_debugging_version": {
 					Type:     pluginsdk.TypeString,
 					Optional: true,
+					Computed: true,
 					ValidateFunc: validation.StringInSlice([]string{
 						"VS2017",
 						"VS2019",
@@ -224,7 +225,7 @@ func SiteConfigSchemaWindows() *pluginsdk.Schema {
 				"use_32_bit_worker": {
 					Type:     pluginsdk.TypeBool,
 					Optional: true,
-					Computed: true, // Variable default value depending on several factors, such as plan type.
+					Default:  true, // Variable default value depending on several factors, such as plan type?
 				},
 
 				"websockets_enabled": {
@@ -2799,9 +2800,7 @@ func ExpandSiteConfigWindows(siteConfig []SiteConfigWindows, existing *web.SiteC
 
 	winSiteConfig := siteConfig[0]
 
-	if metadata.ResourceData.HasChange("site_config.0.always_on") {
-		expanded.AlwaysOn = utils.Bool(winSiteConfig.AlwaysOn)
-	}
+	expanded.AlwaysOn = utils.Bool(winSiteConfig.AlwaysOn)
 
 	if metadata.ResourceData.HasChange("site_config.0.api_management_api_id") {
 		expanded.APIManagementConfig = &web.APIManagementConfig{
@@ -2840,9 +2839,7 @@ func ExpandSiteConfigWindows(siteConfig []SiteConfigWindows, existing *web.SiteC
 		expanded.VirtualApplications = expandVirtualApplications(winSiteConfig.VirtualApplications)
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.container_registry_use_managed_identity") {
-		expanded.AcrUseManagedIdentityCreds = utils.Bool(winSiteConfig.UseManagedIdentityACR)
-	}
+	expanded.AcrUseManagedIdentityCreds = utils.Bool(winSiteConfig.UseManagedIdentityACR)
 
 	if metadata.ResourceData.HasChange("site_config.0.container_registry_managed_identity_client_id") {
 		expanded.AcrUserManagedIdentityID = utils.String(winSiteConfig.ContainerRegistryUserMSI)
@@ -2852,9 +2849,7 @@ func ExpandSiteConfigWindows(siteConfig []SiteConfigWindows, existing *web.SiteC
 		expanded.DefaultDocuments = &winSiteConfig.DefaultDocuments
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.http2_enabled") {
-		expanded.HTTP20Enabled = utils.Bool(winSiteConfig.Http2Enabled)
-	}
+	expanded.HTTP20Enabled = utils.Bool(winSiteConfig.Http2Enabled)
 
 	if metadata.ResourceData.HasChange("site_config.0.ip_restriction") {
 		ipRestrictions, err := ExpandIpRestrictions(winSiteConfig.IpRestriction)
@@ -2864,9 +2859,7 @@ func ExpandSiteConfigWindows(siteConfig []SiteConfigWindows, existing *web.SiteC
 		expanded.IPSecurityRestrictions = ipRestrictions
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.scm_use_main_ip_restriction") {
-		expanded.ScmIPSecurityRestrictionsUseMain = utils.Bool(winSiteConfig.ScmUseMainIpRestriction)
-	}
+	expanded.ScmIPSecurityRestrictionsUseMain = utils.Bool(winSiteConfig.ScmUseMainIpRestriction)
 
 	if metadata.ResourceData.HasChange("site_config.0.scm_ip_restriction") {
 		scmIpRestrictions, err := ExpandIpRestrictions(winSiteConfig.ScmIpRestriction)
@@ -2876,9 +2869,7 @@ func ExpandSiteConfigWindows(siteConfig []SiteConfigWindows, existing *web.SiteC
 		expanded.ScmIPSecurityRestrictions = scmIpRestrictions
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.local_mysql_enabled") {
-		expanded.LocalMySQLEnabled = utils.Bool(winSiteConfig.LocalMysql)
-	}
+	expanded.LocalMySQLEnabled = utils.Bool(winSiteConfig.LocalMysql)
 
 	if metadata.ResourceData.HasChange("site_config.0.load_balancing_mode") {
 		expanded.LoadBalancing = web.SiteLoadBalancing(winSiteConfig.LoadBalancing)
@@ -2888,21 +2879,15 @@ func ExpandSiteConfigWindows(siteConfig []SiteConfigWindows, existing *web.SiteC
 		expanded.ManagedPipelineMode = web.ManagedPipelineMode(winSiteConfig.ManagedPipelineMode)
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.remote_debugging_enabled") {
-		expanded.RemoteDebuggingEnabled = utils.Bool(winSiteConfig.RemoteDebugging)
-	}
+	expanded.RemoteDebuggingEnabled = utils.Bool(winSiteConfig.RemoteDebugging)
 
 	if metadata.ResourceData.HasChange("site_config.0.remote_debugging_version") {
 		expanded.RemoteDebuggingVersion = utils.String(winSiteConfig.RemoteDebuggingVersion)
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.use_32_bit_worker") {
-		expanded.Use32BitWorkerProcess = utils.Bool(winSiteConfig.Use32BitWorker)
-	}
+	expanded.Use32BitWorkerProcess = utils.Bool(winSiteConfig.Use32BitWorker)
 
-	if metadata.ResourceData.HasChange("site_config.0.websockets_enabled") {
-		expanded.WebSocketsEnabled = utils.Bool(winSiteConfig.WebSockets)
-	}
+	expanded.WebSocketsEnabled = utils.Bool(winSiteConfig.WebSockets)
 
 	if metadata.ResourceData.HasChange("site_config.0.ftps_state") {
 		expanded.FtpsState = web.FtpsState(winSiteConfig.FtpsState)
@@ -2964,9 +2949,7 @@ func ExpandSiteConfigLinux(siteConfig []SiteConfigLinux, existing *web.SiteConfi
 
 	linuxSiteConfig := siteConfig[0]
 
-	if metadata.ResourceData.HasChange("site_config.0.always_on") {
-		expanded.AlwaysOn = utils.Bool(linuxSiteConfig.AlwaysOn)
-	}
+	expanded.AlwaysOn = utils.Bool(linuxSiteConfig.AlwaysOn)
 
 	if metadata.ResourceData.HasChange("site_config.0.api_management_api_id") {
 		expanded.APIManagementConfig = &web.APIManagementConfig{
@@ -3027,9 +3010,7 @@ func ExpandSiteConfigLinux(siteConfig []SiteConfigLinux, existing *web.SiteConfi
 		expanded.DefaultDocuments = &linuxSiteConfig.DefaultDocuments
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.http2_enabled") {
-		expanded.HTTP20Enabled = utils.Bool(linuxSiteConfig.Http2Enabled)
-	}
+	expanded.HTTP20Enabled = utils.Bool(linuxSiteConfig.Http2Enabled)
 
 	if metadata.ResourceData.HasChange("site_config.0.ip_restriction") {
 		ipRestrictions, err := ExpandIpRestrictions(linuxSiteConfig.IpRestriction)
@@ -3049,9 +3030,7 @@ func ExpandSiteConfigLinux(siteConfig []SiteConfigLinux, existing *web.SiteConfi
 		expanded.ScmIPSecurityRestrictions = scmIpRestrictions
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.local_mysql_enabled") {
-		expanded.LocalMySQLEnabled = utils.Bool(linuxSiteConfig.LocalMysql)
-	}
+	expanded.LocalMySQLEnabled = utils.Bool(linuxSiteConfig.LocalMysql)
 
 	if metadata.ResourceData.HasChange("site_config.0.load_balancing_mode") {
 		expanded.LoadBalancing = web.SiteLoadBalancing(linuxSiteConfig.LoadBalancing)
@@ -3061,21 +3040,15 @@ func ExpandSiteConfigLinux(siteConfig []SiteConfigLinux, existing *web.SiteConfi
 		expanded.ManagedPipelineMode = web.ManagedPipelineMode(linuxSiteConfig.ManagedPipelineMode)
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.remote_debugging_enabled") {
-		expanded.RemoteDebuggingEnabled = utils.Bool(linuxSiteConfig.RemoteDebugging)
-	}
+	expanded.RemoteDebuggingEnabled = utils.Bool(linuxSiteConfig.RemoteDebugging)
 
 	if metadata.ResourceData.HasChange("site_config.0.remote_debugging_version") {
 		expanded.RemoteDebuggingVersion = utils.String(linuxSiteConfig.RemoteDebuggingVersion)
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.use_32_bit_worker") {
-		expanded.Use32BitWorkerProcess = utils.Bool(linuxSiteConfig.Use32BitWorker)
-	}
+	expanded.Use32BitWorkerProcess = utils.Bool(linuxSiteConfig.Use32BitWorker)
 
-	if metadata.ResourceData.HasChange("site_config.0.websockets_enabled") {
-		expanded.WebSocketsEnabled = utils.Bool(linuxSiteConfig.WebSockets)
-	}
+	expanded.WebSocketsEnabled = utils.Bool(linuxSiteConfig.WebSockets)
 
 	if metadata.ResourceData.HasChange("site_config.0.ftps_state") {
 		expanded.FtpsState = web.FtpsState(linuxSiteConfig.FtpsState)
@@ -3107,9 +3080,7 @@ func ExpandSiteConfigLinux(siteConfig []SiteConfigLinux, existing *web.SiteConfi
 		expanded.Cors = cors
 	}
 
-	if metadata.ResourceData.HasChange("site_config.0.auto_heal_enabled") {
-		expanded.AutoHealEnabled = utils.Bool(linuxSiteConfig.AutoHeal)
-	}
+	expanded.AutoHealEnabled = utils.Bool(linuxSiteConfig.AutoHeal)
 
 	if metadata.ResourceData.HasChange("site_config.0.auto_heal_setting") {
 		expanded.AutoHealRules = expandAutoHealSettingsLinux(linuxSiteConfig.AutoHealSettings)
