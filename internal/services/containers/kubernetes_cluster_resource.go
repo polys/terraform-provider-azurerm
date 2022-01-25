@@ -1384,7 +1384,7 @@ func resourceKubernetesClusterUpdate(d *pluginsdk.ResourceData, meta interface{}
 		}
 	}
 
-	// TODO cleanup
+	// TODO 3.0 - Remove this block
 	if d.HasChange("addon_profile") {
 		updateCluster = true
 		addOnProfilesRaw := d.Get("addon_profile").([]interface{})
@@ -1748,7 +1748,7 @@ func resourceKubernetesClusterRead(d *pluginsdk.ResourceData, meta interface{}) 
 			}
 		}
 
-		// TODO 3.0 - clean up
+		// TODO 3.0 - Remove this
 		addonProfiles := flattenKubernetesAddOnProfiles(props.AddonProfiles)
 		if err := d.Set("addon_profile", addonProfiles); err != nil {
 			return fmt.Errorf("setting `addon_profile`: %+v", err)
