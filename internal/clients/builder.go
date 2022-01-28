@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Azure/go-autorest/autorest"
+	"github.com/Azure/go-autorest/autorest/adal"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/hashicorp/go-azure-helpers/authentication"
 	"github.com/hashicorp/go-azure-helpers/resourcemanager/location"
@@ -37,7 +38,7 @@ Terraform instead offers a separate "azurestack" provider which supports the fun
 and API's available in Azure Stack via Azure Stack Profiles.
 `
 
-func Build(ctx context.Context, builder ClientBuilder) (*Client, error) {
+func Build(ctx context.Context, builder ClientBuilder, clientSecret string) (*Client, error) {
 	// point folks towards the separate Azure Stack Provider when using Azure Stack
 	if strings.EqualFold(builder.AuthConfig.Environment, "AZURESTACKCLOUD") {
 		return nil, fmt.Errorf(azureStackEnvironmentError)
@@ -111,7 +112,9 @@ func Build(ctx context.Context, builder ClientBuilder) (*Client, error) {
 
 	// Key Vault Endpoints
 	keyVaultAuth := builder.AuthConfig.BearerAuthorizerCallback(ctx, sender, oauthConfig)
-
+	if len(builder.AuthConfig.AuxiliaryTenantIDs) > 0 {
+		keyVaultAuth = CustomMultiTenantBearerAuthorizer(ctx, sender, oauthConfig, builder.AuthConfig.ClientID, clientSecret)
+	}
 	// Batch Management Endpoints
 	batchManagementAuth, err := builder.AuthConfig.GetADALToken(ctx, sender, oauthConfig, env.BatchManagementEndpoint)
 	if err != nil {
@@ -157,4 +160,25 @@ func Build(ctx context.Context, builder ClientBuilder) (*Client, error) {
 	}
 
 	return &client, nil
+}
+
+func CustomMultiTenantBearerAuthorizer(ctx context.Context, sender autorest.Sender, oauthConfig *authentication.OAuthConfig, clientID, clientSecret string) *autorest.BearerAuthorizerCallback {
+	return autorest.NewBearerAuthorizerCallback(sender, func(tenantID, resource string) (*autorest.BearerAuthorizer, error) {
+		oauthCfg := oauthConfig.OAuth
+		oAuthTenantId := strings.TrimPrefix(oauthCfg.AuthorityEndpoint.Path, "/")
+		if oAuthTenantId != tenantID && oauthConfig.MultiTenantOauth != nil {
+			mto := *oauthConfig.MultiTenantOauth
+			for _, cfg := range mto.AuxiliaryTenants() {
+				if cfg != nil && strings.TrimPrefix(cfg.AuthorityEndpoint.Path, "/") == tenantID {
+					oauthCfg = cfg
+				}
+			}
+		}
+		spt, err := adal.NewServicePrincipalToken(*oauthCfg, clientID, clientSecret, resource)
+		if err != nil {
+			return nil, fmt.Errorf("while creating new service principal token: %+v", err)
+		}
+		spt.SetSender(sender)
+		return autorest.NewBearerAuthorizer(spt), nil
+	})
 }
